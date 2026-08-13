@@ -1,0 +1,875 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>抛物线的形成 - 互动动画课件</title>
+    <style>
+:root {
+  --ink: #263042;
+  --muted: #657187;
+  --blue: #3487e2;
+  --blue-dark: #1b65bd;
+  --pink: #f06aa6;
+  --green: #3fb984;
+  --sun: #ffcb4c;
+  --card: rgba(255, 255, 255, 0.86);
+  --line: rgba(69, 90, 120, 0.16);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 10% 12%, rgba(255, 210, 102, 0.38), transparent 26%),
+    radial-gradient(circle at 83% 18%, rgba(116, 206, 255, 0.35), transparent 28%),
+    linear-gradient(135deg, #fff4dc 0%, #e8f8ff 48%, #f7eeff 100%);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: minmax(620px, 1.2fr) minmax(360px, 0.8fr);
+  gap: 16px;
+  width: min(1440px, 100%);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 18px;
+}
+
+.stage-card,
+.card {
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 24px;
+  background: var(--card);
+  box-shadow: 0 22px 70px rgba(79, 95, 122, 0.18);
+  backdrop-filter: blur(18px);
+}
+
+.stage-card {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: calc(100vh - 36px);
+  padding: 14px;
+}
+
+.stage-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 4px 8px 14px;
+}
+
+.eyebrow {
+  margin: 0 0 5px;
+  color: var(--blue-dark);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+h1,
+h2 {
+  margin: 0;
+  letter-spacing: 0;
+}
+
+h1 {
+  font-size: 30px;
+  line-height: 1.12;
+}
+
+h2 {
+  font-size: 19px;
+}
+
+.status-pill {
+  min-width: 104px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: #e9f7ef;
+  color: #16784e;
+  font-weight: 900;
+  text-align: center;
+}
+
+#scene {
+  width: 100%;
+  min-height: 0;
+  border-radius: 26px;
+  display: block;
+}
+
+.control-panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.panel-column {
+  display: flex;
+  min-width: 0;
+  height: 100%;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panel-column:first-child .control-card {
+  flex: 1;
+}
+
+.summary-card {
+  grid-column: 1 / -1;
+}
+
+.card {
+  min-height: 0;
+  overflow: visible;
+  padding: 15px;
+}
+
+.control-card {
+  display: grid;
+  gap: 9px;
+}
+
+.button-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.button-grid .primary {
+  grid-column: span 2;
+}
+
+button {
+  min-height: 38px;
+  border: 0;
+  border-radius: 16px;
+  color: #2e3a4d;
+  background: #ffffff;
+  box-shadow: inset 0 0 0 1px var(--line), 0 7px 14px rgba(80, 97, 125, 0.1);
+  cursor: pointer;
+  font-weight: 900;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: inset 0 0 0 1px rgba(52, 135, 226, 0.24), 0 10px 18px rgba(80, 97, 125, 0.15);
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+button.primary {
+  color: #fff;
+  background: linear-gradient(135deg, #3487e2, #43b2df);
+}
+
+.slider-row {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-height: 34px;
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.control-hint {
+  margin: 0;
+  color: var(--blue-dark);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.55;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--pink);
+}
+
+.readout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.distance-readout div {
+  background: #fff9ed;
+  box-shadow: inset 0 0 0 1px rgba(255, 176, 49, 0.24);
+}
+
+.readout div {
+  min-height: 68px;
+  padding: 12px;
+  border-radius: 16px;
+  background: #f6fbff;
+  box-shadow: inset 0 0 0 1px rgba(52, 135, 226, 0.11);
+}
+
+.readout span,
+.readout strong {
+  display: block;
+}
+
+.readout span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.readout strong {
+  margin-top: 7px;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.lesson-text {
+  line-height: 1.45;
+}
+
+.lesson-text h2 {
+  margin-bottom: 8px;
+}
+
+.lesson-text p,
+.lesson-text ul,
+.lesson-text ol {
+  margin: 0;
+  color: #435064;
+  font-size: 14px;
+}
+
+.lesson-text p + p {
+  margin-top: 8px;
+}
+
+.lesson-text li + li {
+  margin-top: 5px;
+}
+
+.axis-labels {
+  fill: #668094;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.directrix {
+  stroke: #2d3342;
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.label,
+.small-label,
+.measure-label,
+.string-label {
+  font-weight: 900;
+  pointer-events: none;
+}
+
+.label {
+  fill: #283247;
+  font-size: 22px;
+}
+
+.small-label {
+  fill: #5b687c;
+  font-size: 15px;
+}
+
+.directrix-name {
+  fill: #1f6dc6;
+}
+
+.trail-path {
+  fill: none;
+  stroke: #263042;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ruler-body {
+  fill: url(#rulerGradient);
+  stroke: rgba(158, 119, 24, 0.34);
+  stroke-width: 2;
+}
+
+.ruler-ticks line {
+  stroke: rgba(105, 78, 19, 0.72);
+  stroke-width: 2;
+}
+
+.ruler-ticks text {
+  fill: #704f08;
+  font-size: 12px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.ruler-text {
+  fill: #704f08;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.pm-line {
+  stroke: var(--blue);
+  stroke-width: 4;
+  stroke-dasharray: 9 9;
+  stroke-linecap: round;
+}
+
+.pf-line {
+  stroke: var(--pink);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.focus-dot {
+  fill: #ff8e3c;
+  stroke: #fff;
+  stroke-width: 4;
+}
+
+.helper-dot {
+  fill: var(--blue);
+  stroke: #fff;
+  stroke-width: 3;
+}
+
+.anchor-dot {
+  fill: var(--pink);
+  stroke: #fff;
+  stroke-width: 3;
+}
+
+.p-dot {
+  fill: #20252b;
+  stroke: #fff;
+  stroke-width: 4;
+}
+
+.pencil {
+  filter: drop-shadow(0 10px 10px rgba(55, 63, 82, 0.2));
+}
+
+.measure-label {
+  fill: var(--blue-dark);
+  font-size: 16px;
+}
+
+.string-label {
+  fill: #bd3f78;
+  font-size: 16px;
+}
+
+.legend rect {
+  fill: rgba(255, 255, 255, 0.72);
+  stroke: rgba(69, 90, 120, 0.13);
+}
+
+.legend text {
+  fill: #536174;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.legend-trail {
+  stroke-width: 4;
+}
+
+@media (max-width: 1100px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .stage-card {
+    min-height: auto;
+  }
+
+  .control-panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 760px) {
+  .app-shell {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .stage-card,
+  .card {
+    border-radius: 18px;
+  }
+
+  .stage-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  h1 {
+    font-size: 28px;
+  }
+
+  .button-grid,
+  .readout,
+  .control-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .control-panel {
+    display: grid;
+    grid-template-columns: 1fr;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .button-grid .primary {
+    grid-column: span 1;
+  }
+
+  .slider-row {
+    grid-template-columns: 1fr;
+  }
+
+  .slider-row span {
+    grid-column: span 1;
+  }
+}
+
+    </style>
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="stage-card" aria-label="抛物线形成动画">
+        <div class="stage-header">
+          <div>
+            <p class="eyebrow">互动动画课件</p>
+            <h1>抛物线的形成</h1>
+          </div>
+          <div class="status-pill" id="statusPill">准备观察</div>
+        </div>
+
+        <svg id="scene" viewBox="0 0 720 620" role="img" aria-labelledby="sceneTitle sceneDesc">
+          <title id="sceneTitle">抛物线由笔尖轨迹逐渐形成</title>
+          <desc id="sceneDesc">画布中有准线、焦点、水平尺、绳子、笔尖和逐渐生成的抛物线轨迹。</desc>
+          <defs>
+            <linearGradient id="canvasBg" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="#fffaf0" />
+              <stop offset="0.55" stop-color="#f2fbff" />
+              <stop offset="1" stop-color="#f8f1ff" />
+            </linearGradient>
+            <linearGradient id="rulerGradient" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="#fff6c7" />
+              <stop offset="1" stop-color="#ffd86c" />
+            </linearGradient>
+            <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#7b6b42" flood-opacity="0.18" />
+            </filter>
+            <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+              <path d="M 32 0 H 0 V 32" fill="none" stroke="#d7e7ef" stroke-width="1" opacity="0.65" />
+            </pattern>
+          </defs>
+
+          <rect x="0" y="0" width="720" height="620" rx="26" fill="url(#canvasBg)" />
+          <rect x="0" y="0" width="720" height="620" rx="26" fill="url(#grid)" />
+
+          <g class="axis-labels">
+            <text x="30" y="58">画布区</text>
+            <text x="30" y="88">观察：PF = PL</text>
+          </g>
+
+          <line id="directrix" class="directrix" x1="170" y1="76" x2="170" y2="548" />
+          <text x="132" y="72" class="label directrix-name">准线</text>
+
+          <path id="trailPath" class="trail-path" d="" />
+
+          <g id="rulerGroup" filter="url(#softShadow)">
+            <rect id="rulerBody" class="ruler-body" x="170" y="286" width="390" height="48" rx="12" />
+            <g id="rulerTicks" class="ruler-ticks" aria-hidden="true"></g>
+          </g>
+
+          <line id="pmLine" class="pm-line" x1="170" y1="310" x2="210" y2="310" />
+          <line id="pfLine" class="pf-line" x1="250" y1="310" x2="210" y2="310" />
+          <line id="paLine" class="pf-line" x1="210" y1="310" x2="560" y2="310" />
+
+          <circle id="focusDot" class="focus-dot" cx="250" cy="310" r="8" />
+          <text id="focusLabel" x="263" y="304" class="label">F</text>
+
+          <circle id="mDot" class="helper-dot" cx="170" cy="310" r="6" />
+          <text id="mLabel" x="150" y="302" class="label">L</text>
+
+          <circle id="aDot" class="anchor-dot" cx="560" cy="310" r="6" />
+          <text id="aLabel" x="568" y="304" class="small-label">A</text>
+
+          <g id="pencil" class="pencil">
+            <g transform="rotate(-27)">
+              <path d="M -10 -28 L 0 0 L 10 -28 Z" fill="#e9b77a" />
+              <path d="M -3 -9 L 0 0 L 3 -9 Z" fill="#20252b" />
+              <rect x="-10" y="-146" width="20" height="118" rx="6" fill="#38a3a5" />
+              <rect x="-10" y="-146" width="20" height="24" rx="6" fill="#ffcf56" />
+              <line x1="-5" y1="-116" x2="-5" y2="-48" stroke="#ffffff" stroke-width="2" opacity="0.55" />
+            </g>
+          </g>
+
+          <circle id="pDot" class="p-dot" cx="210" cy="310" r="9" />
+          <text id="pLabel" x="224" y="343" class="label">P</text>
+
+          <text id="pmLabel" class="measure-label" x="180" y="294">PL 2.0 cm</text>
+          <text id="pfLabel" class="string-label" x="222" y="286">PF 2.0 cm</text>
+          <text id="paLabel" class="string-label" x="370" y="294">绳子</text>
+        </svg>
+      </section>
+
+      <aside class="control-panel" aria-label="学生操作区">
+        <div class="panel-column">
+          <section class="card control-card">
+          <p class="eyebrow">学生操作区</p>
+          <h2>自己画出抛物线</h2>
+
+          <div class="button-grid">
+            <button class="primary" id="playBtn" type="button">播放动画</button>
+            <button id="pauseBtn" type="button">暂停</button>
+            <button id="resumeBtn" type="button">继续</button>
+            <button id="restartBtn" type="button">重新开始</button>
+            <button id="clearBtn" type="button">清空轨迹</button>
+          </div>
+
+          <p class="control-hint">说明：拖动“笔尖位置”来画线；拖动“FL”来改变焦点 F 至准线的垂直距离。</p>
+
+          <label class="slider-row">
+            <span>笔尖位置</span>
+            <input id="tSlider" type="range" min="-190" max="190" step="1" value="190" />
+          </label>
+
+          <label class="slider-row">
+            <span>FL</span>
+            <input id="pSlider" type="range" min="24" max="86" step="1" value="40" />
+          </label>
+          </section>
+
+        </div>
+
+        <div class="panel-column">
+          <section class="card lesson-text">
+            <h2>学习目标</h2>
+            <ul>
+              <li>认识焦点 F、准线和抛物线上的动点 P。</li>
+              <li>理解抛物线上的任意点 P 满足 PF = PL。</li>
+            </ul>
+          </section>
+
+          <section class="card lesson-text">
+            <h2>课堂活动</h2>
+            <ol>
+              <li>拖动“笔尖位置”，观察尺、绳和铅笔怎样同步移动。</li>
+              <li>把 FL 调小，再重新播放。抛物线的开口有什么变化？</li>
+              <li>任选一个 P 点，比较图中的 PF 和 PL，它们是否相等？</li>
+            </ol>
+          </section>
+        </div>
+
+        <section class="card lesson-text summary-card">
+          <h2>课本小结</h2>
+          <p>抛物线是平面上一种常见的曲线。它可以定义为：平面内到一个定点和一条定直线距离相等的点所组成的图形。</p>
+          <p>定点 F 叫做焦点，定直线 L 叫做准线。抛物线上的点 P 满足 PF = PL。</p>
+        </section>
+      </aside>
+    </main>
+    <script>
+const model = {
+  vertexX: 210,
+  vertexY: 310,
+  p: 40,
+  t: 190,
+  minT: -190,
+  maxT: 190,
+  rulerRightX: 560
+};
+
+const state = {
+  trail: [],
+  playing: false,
+  direction: -1,
+  lastFrame: performance.now()
+};
+
+const PIXELS_PER_CM = 20;
+
+const els = {
+  scene: document.querySelector("#scene"),
+  statusPill: document.querySelector("#statusPill"),
+  trailPath: document.querySelector("#trailPath"),
+  rulerGroup: document.querySelector("#rulerGroup"),
+  rulerBody: document.querySelector("#rulerBody"),
+  rulerTicks: document.querySelector("#rulerTicks"),
+  pmLine: document.querySelector("#pmLine"),
+  pfLine: document.querySelector("#pfLine"),
+  paLine: document.querySelector("#paLine"),
+  focusDot: document.querySelector("#focusDot"),
+  focusLabel: document.querySelector("#focusLabel"),
+  mDot: document.querySelector("#mDot"),
+  mLabel: document.querySelector("#mLabel"),
+  pDot: document.querySelector("#pDot"),
+  pLabel: document.querySelector("#pLabel"),
+  aDot: document.querySelector("#aDot"),
+  aLabel: document.querySelector("#aLabel"),
+  pencil: document.querySelector("#pencil"),
+  pmLabel: document.querySelector("#pmLabel"),
+  pfLabel: document.querySelector("#pfLabel"),
+  paLabel: document.querySelector("#paLabel"),
+  playBtn: document.querySelector("#playBtn"),
+  pauseBtn: document.querySelector("#pauseBtn"),
+  resumeBtn: document.querySelector("#resumeBtn"),
+  restartBtn: document.querySelector("#restartBtn"),
+  clearBtn: document.querySelector("#clearBtn"),
+  tSlider: document.querySelector("#tSlider"),
+  pSlider: document.querySelector("#pSlider")
+};
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function pointFromT(t = model.t) {
+  const y = model.vertexY + t;
+  const x = model.vertexX + (t * t) / (4 * model.p);
+  return { x, y };
+}
+
+function directrixX() {
+  return model.vertexX - model.p;
+}
+
+function geometry() {
+  const pPoint = pointFromT();
+  const focus = { x: model.vertexX + model.p, y: model.vertexY };
+  const mPoint = { x: directrixX(), y: pPoint.y };
+  const aPoint = { x: model.rulerRightX, y: pPoint.y };
+  const pf = Math.hypot(pPoint.x - focus.x, pPoint.y - focus.y);
+  const pm = Math.abs(pPoint.x - mPoint.x);
+  return { pPoint, focus, mPoint, aPoint, pf, pm };
+}
+
+function setAttrs(el, attrs) {
+  Object.entries(attrs).forEach(([key, value]) => {
+    el.setAttribute(key, String(value));
+  });
+}
+
+function buildRulerTicks() {
+  const ns = "http://www.w3.org/2000/svg";
+  els.rulerTicks.innerHTML = "";
+  const rulerCm = Math.floor((model.rulerRightX - directrixX()) / PIXELS_PER_CM);
+  for (let i = 0; i <= rulerCm; i += 1) {
+    const x = directrixX() + i * PIXELS_PER_CM;
+    const long = i % 5 === 0;
+    const line = document.createElementNS(ns, "line");
+    setAttrs(line, {
+      x1: x,
+      y1: long ? 284 : 292,
+      x2: x,
+      y2: 310
+    });
+    els.rulerTicks.appendChild(line);
+    if (long) {
+      const text = document.createElementNS(ns, "text");
+      setAttrs(text, {
+        x,
+        y: 326
+      });
+      text.textContent = String(i);
+      els.rulerTicks.appendChild(text);
+    }
+  }
+}
+
+function addTrailPoint(force = false) {
+  const point = pointFromT();
+  const last = state.trail[state.trail.length - 1];
+  const movedEnough = !last || Math.hypot(point.x - last.x, point.y - last.y) >= 1.4;
+  if (force || movedEnough) {
+    state.trail.push({ x: point.x, y: point.y, p: model.p, t: model.t });
+  }
+}
+
+function resetTrail(startT = model.maxT) {
+  model.t = startT;
+  state.trail = [];
+  addTrailPoint(true);
+}
+
+function pathFromTrail() {
+  if (state.trail.length === 0) return "";
+  return state.trail
+    .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`)
+    .join(" ");
+}
+
+function updateScene() {
+  const { pPoint, focus, mPoint, aPoint, pf, pm } = geometry();
+  const rulerY = pPoint.y - 24;
+
+  setAttrs(document.querySelector("#directrix"), {
+    x1: directrixX(),
+    x2: directrixX()
+  });
+  setAttrs(document.querySelector(".directrix-name"), {
+    x: directrixX() - 38
+  });
+
+  setAttrs(els.focusDot, { cx: focus.x, cy: focus.y });
+  setAttrs(els.focusLabel, { x: focus.x + 13, y: focus.y - 6 });
+
+  setAttrs(els.rulerBody, {
+    x: directrixX(),
+    y: rulerY,
+    width: model.rulerRightX - directrixX(),
+    height: 48
+  });
+  els.rulerTicks.setAttribute("transform", `translate(0 ${pPoint.y - model.vertexY})`);
+
+  setAttrs(els.pmLine, { x1: mPoint.x, y1: mPoint.y, x2: pPoint.x, y2: pPoint.y });
+  setAttrs(els.pfLine, { x1: focus.x, y1: focus.y, x2: pPoint.x, y2: pPoint.y });
+  setAttrs(els.paLine, { x1: pPoint.x, y1: pPoint.y, x2: aPoint.x, y2: aPoint.y });
+
+  setAttrs(els.mDot, { cx: mPoint.x, cy: mPoint.y });
+  setAttrs(els.mLabel, { x: mPoint.x - 20, y: mPoint.y - 8 });
+  setAttrs(els.pDot, { cx: pPoint.x, cy: pPoint.y });
+  setAttrs(els.pLabel, { x: pPoint.x + 14, y: pPoint.y + 34 });
+  setAttrs(els.aDot, { cx: aPoint.x, cy: aPoint.y });
+  setAttrs(els.aLabel, { x: aPoint.x + 8, y: aPoint.y - 8 });
+
+  els.pencil.setAttribute("transform", `translate(${pPoint.x} ${pPoint.y})`);
+  els.trailPath.setAttribute("d", pathFromTrail());
+
+  setAttrs(els.pmLabel, {
+    x: (mPoint.x + pPoint.x) / 2 - 30,
+    y: pPoint.y - 16
+  });
+  setAttrs(els.pfLabel, {
+    x: (focus.x + pPoint.x) / 2 - 30,
+    y: (focus.y + pPoint.y) / 2 - 14
+  });
+  setAttrs(els.paLabel, {
+    x: (pPoint.x + aPoint.x) / 2 - 18,
+    y: pPoint.y - 16
+  });
+
+  els.tSlider.value = Math.round(model.t);
+  els.pSlider.value = Math.round(model.p);
+  els.pfLabel.textContent = `PF ${(pf / PIXELS_PER_CM).toFixed(1)} cm`;
+  els.pmLabel.textContent = `PL ${(pm / PIXELS_PER_CM).toFixed(1)} cm`;
+  els.statusPill.textContent = state.playing ? "正在绘制" : "可以操作";
+}
+
+function applyT(value, shouldAddTrail = true) {
+  model.t = clamp(Number(value), model.minT, model.maxT);
+  if (shouldAddTrail) addTrailPoint();
+  updateScene();
+}
+
+function applyP(value) {
+  model.p = clamp(Number(value), 24, 86);
+  buildRulerTicks();
+  state.trail = [];
+  addTrailPoint(true);
+  updateScene();
+}
+
+function playFromBottom() {
+  resetTrail(model.maxT);
+  state.direction = -1;
+  state.playing = true;
+  state.lastFrame = performance.now();
+  updateScene();
+}
+
+function pause() {
+  state.playing = false;
+  updateScene();
+}
+
+function resume() {
+  if (model.t <= model.minT) {
+    resetTrail(model.maxT);
+  }
+  state.playing = true;
+  state.lastFrame = performance.now();
+  updateScene();
+}
+
+function clearTrail() {
+  state.trail = [];
+  addTrailPoint(true);
+  updateScene();
+}
+
+function animate(now) {
+  const delta = Math.min(64, now - state.lastFrame);
+  state.lastFrame = now;
+
+  if (state.playing) {
+    model.t += state.direction * delta * 0.075;
+    if (model.t <= model.minT) {
+      model.t = model.minT;
+      state.playing = false;
+    }
+    addTrailPoint();
+    updateScene();
+  }
+
+  requestAnimationFrame(animate);
+}
+
+els.playBtn.addEventListener("click", playFromBottom);
+els.pauseBtn.addEventListener("click", pause);
+els.resumeBtn.addEventListener("click", resume);
+els.restartBtn.addEventListener("click", playFromBottom);
+els.clearBtn.addEventListener("click", clearTrail);
+
+els.tSlider.addEventListener("input", (event) => {
+  state.playing = false;
+  applyT(event.target.value);
+});
+
+els.pSlider.addEventListener("input", (event) => {
+  state.playing = false;
+  applyP(event.target.value);
+});
+
+buildRulerTicks();
+resetTrail(model.maxT);
+updateScene();
+requestAnimationFrame(animate);
+
+    </script>
+  </body>
+</html>
